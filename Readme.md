@@ -25,18 +25,6 @@ The dataset is sourced from the INSEE’s official website: [Estimations de popu
 - **License**: Open License
 - **Frequency**: Annual
 
-### Data Folder Structure
-```plaintext
-project-population/
-├── data/
-│   ├── bronze/    # Raw data from INSEE
-│       ├── data.csv        # Main dataset
-│       ├── metadata.csv    # Metadata describing variables and codes
-├── staging/         # Staging area for cleaned data
-├── gold/            # Final data ready for analysis
-├── transformations/  # Data transformation scripts
-├── visualizations/   # Reports and visualizations
-```
 
 ## CSV Files Breakdown
 

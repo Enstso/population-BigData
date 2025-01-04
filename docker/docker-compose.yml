@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  mariadb:
+    image: mariadb:latest
+    container_name: mariadb_container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password # Mot de passe root
+      MYSQL_DATABASE: population_db      # Nom de la base de données
+      MYSQL_USER: user                   # Nom de l'utilisateur
+      MYSQL_PASSWORD: user_password      # Mot de passe de l'utilisateur
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin_container
+    restart: always
+    environment:
+      PMA_HOST: mariadb                 # Nom du service MariaDB défini ci-dessus
+      MYSQL_ROOT_PASSWORD: root_password # Mot de passe root pour MariaDB
+    ports:
+      - "8080:80"                       # phpMyAdmin sera accessible via localhost:8080
+    depends_on:
+      - mariadb                         # Assurez-vous que MariaDB démarre avant phpMyAdmin
+
+volumes:
+  mariadb_data:
