@@ -1,17 +1,27 @@
 # Population Distribution Analysis in France
 
 ## Project Overview
-This project focuses on analyzing the population distribution in France based on data provided by the **INSEE (Institut National de la Statistique et des Études Économiques)**. The goal is to study population trends and disparities across regions, considering variables such as age, gender, and total population size.
+This project focuses on analyzing the population distribution in France based on data provided by the **INSEE (Institut National de la Statistique et des Études Économiques)**. It uses a data pipeline inspired by the **Medallion Architecture** to process raw data into clean and aggregated datasets for analysis and visualization. The goal is to study population trends and disparities across regions, considering variables such as age, gender, and total population size.
+
+---
 
 ## Objectives
-1. **Understand regional population distribution**: Identify areas with high or low population density.
-2. **Analyze demographic structures**: Examine the breakdown of populations by age groups and gender.
-3. **Provide insights for visualization**: Use data to create visualizations highlighting key demographic patterns.
+
+1. **Clean and transform raw data**:
+   - Remove anomalies and missing values.
+   - Filter valid regions and demographic segments.
+
+2. **Analyze population trends**:
+   - Study regional population distributions over time.
+   - Compare demographic structures (age, gender) across regions and years.
+
+3. **Provide actionable visual insights**:
+   - Generate interactive reports and dashboards using Power BI.
 
 ---
 
 ## Data Sources
-The dataset is sourced from the INSEE’s official website: [Estimations de population](https://www.insee.fr/fr/statistiques/6008693?sommaire=6008495). This dataset provides estimations of population indicators at the departmental, regional, and national levels.
+The dataset is sourced from the INSEE’s official website: [Estimation de Population]().
 
 ### Dataset Details
 - **Title**: Estimations de population
@@ -25,131 +35,140 @@ The dataset is sourced from the INSEE’s official website: [Estimations de popu
 - **License**: Open License
 - **Frequency**: Annual
 
+---
 
-## CSV Files Breakdown
+## Data Architecture
 
-1. data.csv:
-    - Columns:
-        GEO: Geographic identifier (region, department, or national level).
-        - GEO_OBJECT: Geographic description (name of the region or department).
-        - SEX: Gender (e.g., M for Male, F for Female).
-        - AGE: Age group.
-        - EP_MEASURE: Estimation parameter.
-        - OBS_STATUS_FR: Observation status (e.g., validated, estimated).
-        - TIME_PERIOD: Year of observation.
-        - OBS_VALUE: Population value.
+### Medallion Architecture: Tables and Data Flow
 
-- Rows: Contains population data across years (1990-2024).
+#### Tables of Data
+1. **Table Bronze**: Raw data (`population_bronze`), containing fields such as gender, age, region, etc.
+2. **Table Silver**: Cleaned and transformed data (`population_silver`), with filtering and handling of anomalies.
+3. **Table Gold**: Aggregated data (`population_gold`), including indicators like total population and percentage distribution.
 
-2. metadata.csv:
-    - Columns:
-        - COD_VAR: Code for each variable.
-        - LIB_VAR: Description of each variable.
-        - COD_MOD: Code for each modality (e.g., AGE or SEX).
-        - LIB_MOD: Description of each modality.
+#### Data Flow
+1. **Bronze**: Import raw data into a MariaDB database.
+2. **Silver**: Clean and transform the data by:
+   - Removing invalid or unknown values (_T) for AGE and SEX.
+   - Filtering by valid region codes (postal codes).
+3. **Gold**: Aggregate and calculate indicators for further analysis:
+   - Total population and percentage by region, gender, and year.
+   - Labels for improved readability.
+
+---
 
 ## Methodology
 
 ### Step 1: Data Collection
-
-- Source: Data was downloaded directly from INSEE’s open data portal.
-- Format: Files are available in CSV format for easy processing.
+- **Source**: Data was downloaded directly from INSEE’s open data portal.
+- **Format**: Files are available in CSV format for easy processing.
 
 ### Step 2: Data Cleaning
-
-- Verify column names, types, and completeness of the dataset.*
-- Match variable codes in data.csv with their descriptions in metadata.csv.
+- Verify column names, types, and completeness of the dataset.
+- Match variable codes in `data.csv` with their descriptions in `metadata.csv`.
 - Handle missing or invalid data (e.g., remove unnecessary columns or fix formatting).
 
 ### Step 3: Data Modeling
-
-- Develop a star schema for organizing the data into a structured Data Warehouse format:
-    - Fact Table: Population indicators from data.csv.
-    - Dimension Tables: Regions, age groups, and gender from metadata.csv.
+- **Fact Table**: Population indicators from `data.csv`.
+- **Dimension Tables**: Regions, age groups, and gender from `metadata.csv`.
 
 ### Step 4: Data Transformation
-
-- Perform transformations such as filtering, aggregation, and normalization to prepare the data for analysis.
+- Filter, aggregate, and normalize the data into the Silver and Gold stages:
+  - **Silver**: Clean data and remove anomalies.
+  - **Gold**: Aggregate data into indicators for analysis.
 
 ### Step 5: Visualization
+- Use Power BI to create interactive visualizations such as:
+  - Regional population density maps.
+  - Age and gender distribution histograms.
+  - Time-series trend analysis (1990 - 2024).
 
-- Generate insightful visualizations using tools like Power BI, Apache Superset, or Python libraries such as Matplotlib or Seaborn. Example visualizations include:
-
-    - Regional population density maps.
-    - Age and gender distribution histograms.
-    - Trend analysis over time (1990 - 2024).
-
+---
 
 ## Tools and Technologies
 
-1. **Data Ingestion**:
-    - Raw CSV files from INSEE.
+### Data Ingestion
+- Raw CSV files from INSEE.
 
-2. **Data Processing:**:
-    - Python (Pandas, NumPy).
-    - SQL for transformations.
+### Data Processing
+- **Python**: Pandas, NumPy for data manipulation.
+- **SQL**: MariaDB for database management.
 
-3. **Data Visualization**:
-    - Power BI or Apache Superset.
-    - Python (Matplotlib, Seaborn).
+### Data Visualization
+- **Power BI**: Interactive dashboards and reports.
+- **Python Libraries**: Matplotlib, Seaborn for custom charts.
 
-4. **Data Architecture**:
-    - Bronze folder (raw data).
-    - Star schema for the Data Warehouse.
+### Data Architecture
+- **Bronze folder**: Raw data storage.
+- **Medallion schema**: Structured data processing.
+
+---
+
+## Visualizations in Power BI
+
+1. **Analysis of Men in 1990 (Region 01)**:
+   - **Type**: Bar chart.
+   - **Axes**: GEO (X), total_population (Y).
+   - **Filters**: TIME_PERIOD = 1990, SEX = 'M', GEO = '01'.
+
+2. **Women in Region 01**:
+   - **Type**: Stacked column chart.
+   - **Axes**: TIME_PERIOD (X), total_population (Y).
+   - **Filters**: SEX = 'F', GEO = '01'.
+
+3. **Geographical Distribution**:
+   - **Type**: Map.
+   - **Location**: GEO.
+   - **Size**: total_population.
+
+4. **Dynamic Pivot Tables**:
+   - Analyze population by:
+     - Region (GEO).
+     - Gender (SEX).
+     - Year (TIME_PERIOD).
+
+---
 
 ## Expected Outcomes
 
-1. A detailed report highlighting:
+1. **Dynamic Reports**:
+   - Visualizations for gender and age analysis.
+   - Interactive dashboards for regional comparisons.
 
-    - Regional population distributions.
+2. **Key Insights**:
+   - Population trends from 1990 to 2024.
+   - Regional disparities and demographic changes.
 
-    - Insights on age and gender demographics.
+3. **Reusable Data Structure**:
+   - A structured Data Warehouse ready for further analysis.
 
-    - Analysis of trends over the years 1990 - 2024.
+---
 
-2. Visualizations showcasing:
+## Future Improvements
 
-    - Population trends.
+- Add predictive analysis based on historical trends.
+- Integrate additional data dimensions (e.g., economy, education).
+- Automate data updates via APIs.
 
-    - Disparities across regions.
-
-    - Changes in age demographics.
-
-3. A structured Data Warehouse to facilitate further analysis.
+---
 
 ## How to Run the Project
 
-1. Prepare the Environment:
+1. **Prepare the Environment**:
+   - Install required Python libraries (`pandas`, `matplotlib`, `seaborn`).
+   - Set up a MariaDB database.
 
-    - Install required Python libraries: pandas, matplotlib, seaborn.
+2. **Load the Data**:
+   - Place the raw data in the Bronze folder.
+   - Run provided scripts to clean and load the data into Silver and Gold tables.
 
-    - Set up a database for structured data (e.g., PostgreSQL, SQLite).
+3. **Run Analysis**:
+   - Use Jupyter Notebook or SQL scripts for exploratory data analysis (EDA).
 
-2. Load the Data:
+4. **Generate Visualizations**:
+   - Load the Gold table into Power BI to create reports.
 
-    - Place the raw data in the bronze folder.
-
-    - Use provided Python scripts to clean and load the data into the database.
-
-3. Run Analysis:
-
-    - Use Jupyter Notebook or SQL scripts to perform exploratory data analysis (EDA).
-
-4. Generate Visualizations:
-
-    - Open the Power BI file or run visualization scripts to generate charts and maps.
-
-
-## Authors
-
-This project is carried out by a team of 4 students as part of the DP-203 Data Engineering course. Contributions include:
-
-- Data collection and cleaning.
-- Data modeling and transformation.
-- Visualization and reporting.
+---
 
 ## References
-
-- INSEE Official Website: https://www.insee.fr
-- Population Dataset: Estimations de population
-
+- [INSEE Official Website](https://www.insee.fr)
